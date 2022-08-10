@@ -1,0 +1,60 @@
+global:
+  storageClass: "ceph-block"
+
+extraEnvVars:
+  - name: PREFER_HOST_MODE
+    value: "hostname"
+  - name: TZ
+    value: "Asia/Shanghai"
+  - name: MODE
+    value: "cluster"
+  - name: SPRING_DATASOURCE_PLATFORM
+    value: "mysql"
+  - name: MYSQL_SERVICE_DB_PARAM
+    value: "characterEncoding=utf8mb4&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false"
+
+resources: 
+ requests:
+   cpu: 50m
+   memory: 1Gi
+ limits:
+   cpu: 500m
+   memory: 4Gi
+
+persistence:
+  enabled: true
+  storageClass: "ceph-block"
+  accessMode: ReadWriteOnce
+
+service:
+  ports:
+    ## 多端口暴露时，复制一段
+    http:
+      port: 8848  # Service port number for client-a port.
+      protocol: TCP  # Service port protocol for client-a port.
+    client-rpc:
+      protocol: TCP
+      port: 9848
+    raft-rpc:
+      protocol: TCP
+      port: 9849
+    ## 兼容1.4.x版本的选举端口
+    old-raft-rpc:
+      protocol: TCP
+      port: 7848
+
+ingress:
+  enabled: true
+  ingressClassName: "nginx"
+  hostname: nacos.sendpulsar.com
+
+mysql:
+  enabled: false
+  external:
+    mysqlMasterHost: "192.168.31.151"
+    mysqlMasterPort: "3306"
+    mysqlDatabase: "nacos"
+    mysqlMasterUser: "nacos"
+    mysqlMasterPassword: "nacos2022"
+    mysqlSlaveHost: ""
+    mysqlSlavePort: "3306"

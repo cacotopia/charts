@@ -4,6 +4,7 @@ metadata:
   name: {{ include "common.names.fullname" . }}-test
   annotations:
     "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
   containers:
   - name: {{ .Release.Name }}-test
@@ -13,5 +14,5 @@ spec:
     - name: NACOS_SERVER_PORT
       value: "8848"
     - name: NACOS_SERVICE_HOST 
-      value: {{ template "nacos.fullname" . }}
+      value: {{ include "common.names.fullname" . }}
   restartPolicy: Never
