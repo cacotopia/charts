@@ -1,0 +1,116 @@
+{{- with .Values.brokerbs }}
+{{- if eq .service.type "NodePort" }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ .service.name }}
+  name: {{ .service.name }}
+spec:
+  type: {{ .service.type }}
+  ports:
+  - port: {{ .sts.port }}
+    targetPort: {{ .sts.port }}
+    name: broker-port
+    nodePort: {{ .service.nodeport }}
+  selector:
+    app: {{ .service.name }}
+{{- else  }}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .service.name }}
+  labels:
+    app: {{ .service.name }}
+  annotations:
+    lb.kubesphere.io/v1alpha1: porter
+    protocol.porter.kubesphere.io/v1alpha1: layer2
+    eip.porter.kubesphere.io/v1alpha2: porter-layer2-eip
+spec:
+  selector:
+    app: {{ .service.name }}
+  type: {{ .service.type }}
+  ports:
+  - port: {{ .sts.port }}
+    targetPort: {{ .sts.port }}
+    name: broker-port
+  externalTrafficPolicy: Cluster
+{{- end }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .sts.name }}
+spec:
+  serviceName: {{ .service.name }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .sts.name }}
+  template:
+    metadata:
+     labels:
+       app: {{ .sts.name }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - {{ .sts.name }}
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: {{ .sts.name }}
+        image: harbor.assistfc.com/middleware/rocketmq:{{ .sts.version }}
+        imagePullPolicy: Always
+        env:
+        - name: {{ .sts.env.name }}
+          value: {{ .sts.env.value }}
+        command: ["sh","-c","/usr/local/rocketmq-{{ .sts.version }}/bin/mqbroker  -c /usr/local/rocketmq-{{ .sts.version }}/conf/broker-b-s.properties"]
+        volumeMounts:
+          - mountPath: /root/logs
+            name: rocketmq-data
+            subPath: mq-brokeroptlogs
+          - mountPath: /data/rocketmq
+            name: rocketmq-data
+            subPath: mq-brokeroptstore
+          - name: broker-config
+            mountPath: /usr/local/rocketmq-{{ .sts.version }}/conf/broker-b-s.properties
+            subPath: broker-b-s.properties
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh","-c","touch /tmp/health"]
+        livenessProbe:
+          exec:
+            command: ["test","-e","/tmp/health"]
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: {{ .sts.port }}
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
+          periodSeconds: 20
+      volumes:
+      - name: broker-config
+        configMap:
+          name: {{ .cm.name }}
+          items:
+          - key: broker-b-s.properties 
+            path: broker-b-s.properties
+  volumeClaimTemplates:
+  - metadata:
+      name: rocketmq-data
+    spec:
+      accessModes:
+        - ReadWriteMany
+      storageClassName: {{ .sts.storageClassName }}
+      resources:
+        requests:
+          storage: 10Gi
+{{- end }}

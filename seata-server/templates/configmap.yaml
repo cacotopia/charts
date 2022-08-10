@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: seata-server-config
+data:
+  registry.conf: |-
+    registry {
+      type = "{{- .Values.registry.type }}"
+{{- if (and (eq .Values.registry.type "nacos") (.Values.registry.nacos)) }}
+      nacos {
+        serverAddr = "{{ .Values.registry.nacos.serverAddr }}"
+        group = "{{ .Values.registry.nacos.group }}"
+        namespace = "{{ .Values.registry.nacos.namespace }}"
+        cluster = "{{ .Values.registry.nacos.cluster }}"
+        username = "{{ .Values.registry.nacos.username }}"
+        password = "{{ .Values.registry.nacos.password }}"
+        application = "{{ .Values.registry.nacos.application }}"
+      }
+{{- end}}
+{{- if (and (eq .Values.registry.type "eureka") (.Values.registry.eureka)) }}
+      eureka {
+        serviceUrl = "{{ .Values.registry.eureka.serviceUrl }}"
+        application = "{{ .Values.registry.eureka.application }}"
+        weight = {{ .Values.registry.eureka.weight }}
+        }
+{{- end}}
+{{- if (and (eq .Values.registry.type "etcd3") (.Values.registry.etcd3)) }}
+      etcd3 {
+        serverAddr = {{ .Values.registry.etcd3.serverAddr }}
+        }
+{{- end }}
+{{- if (and (eq .Values.registry.type "consul") (.Values.registry.consul)) }}
+      consul {
+          # 注册到 Consul 上的集群名称，默认是 default
+        cluster =  "{{ .Values.registry.eureka.cluster }}"
+        serverAddr = "{{ .Values.registry.eureka.serverAddr }}"
+        aclToken = "{{ .Values.registry.eureka.aclToken }}"
+        }
+{{- end}}
+    }
+    config {
+      type = "{{- .Values.config.type }}"
+{{- if (and (eq .Values.config.type "nacos") (.Values.config.nacos)) }}
+      nacos {
+        serverAddr = "{{ .Values.config.nacos.serverAddr }}"
+        group = "{{ .Values.config.nacos.group }}"
+        namespace = "{{ .Values.config.nacos.namespace }}"
+        username = "{{ .Values.config.nacos.username }}"
+        password = "{{ .Values.config.nacos.password }}"
+        # 从v1.4.2版本开始，已支持从一个Nacos dataId中获取所有配置信息,你只需要额外添加一个dataId配置项
+        dataId = "{{ .Values.config.nacos.dataId }}"
+      }
+{{- end}} 
+{{- if (and (eq .Values.config.type "apollo") (.Values.config.apollo)) }}     
+      apollo {
+        appId = "{{ .Values.config.apollo.appId }}"
+        apolloMeta = "{{ .Values.config.apollo.apolloMeta }}"
+        namespace = "{{ .Values.config.apollo.namespace }}"
+        apolloAccesskeySecret = "{{ .Values.config.apollo.apolloAccesskeySecret }}"
+      }
+{{- end}} 
+{{- if (and (eq .Values.config.type "etcd3") (.Values.config.etcd3)) }}         
+      etcd3 {
+        serverAddr = "{{ .Values.config.etcd3.serverAddr }}"
+      }
+{{- end}} 
+{{- if (and (eq .Values.config.type "consul") (.Values.config.consul)) }}    
+      consul {
+        serverAddr = "{{ .Values.config.consul.serverAddr }}"
+        aclToken = "{{ .Values.config.consul.aclToken }}"
+      }
+{{- end}} 
+    }

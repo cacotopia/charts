@@ -1,0 +1,85 @@
+{{- with .Values.namesrvd }}
+{{- if eq .service.type "NodePort" }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ .service.name }}
+  name: {{ .service.name }}
+spec:
+  type: {{ .service.type }}
+  ports:
+  - port: 20901
+    targetPort: 20901
+    name: namesrv-port
+    nodePort: {{ .service.nodeport }}
+  selector:
+    app: {{ .service.name }}
+{{- else }}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .service.name }}
+  labels:
+    app: {{ .service.name }}
+  annotations:
+    lb.kubesphere.io/v1alpha1: porter
+    protocol.porter.kubesphere.io/v1alpha1: layer2
+    eip.porter.kubesphere.io/v1alpha2: porter-layer2-eip
+spec:
+  selector:
+    app: {{ .service.name }}
+  type: {{ .service.type }}
+  ports:
+  - port: 20901
+    targetPort: 20901
+    name: namesrv-port
+  externalTrafficPolicy: Cluster
+{{- end }}    
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .sts.name }}
+spec:
+  serviceName: {{ .service.name }}
+  replicas: {{ .sts.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .sts.name }}
+  template:
+    metadata:
+     labels:
+       app: {{ .sts.name }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - {{ .sts.name }}
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: mq-namesrv
+        image: harbor.assistfc.com/middleware/rocketmq-namesrv:{{ .sts.version }}
+        imagePullPolicy: Always
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh","-c","touch /tmp/health"]
+        livenessProbe:
+          exec:
+            command: ["test","-e","/tmp/health"]
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 20901
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
+          periodSeconds: 20
+{{- end }}

@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xxl-job-admin.fullname" . }}
+  labels:
+    {{- include "xxl-job-admin.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "xxl-job-admin.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "xxl-job-admin.selectorLabels" . | nindent 8 }}
+    spec:
+{{- include "xxl-job-admin.imagePullSecrets" . | indent 6 }}
+      serviceAccountName: {{ include "xxl-job-admin.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ template "xxl-job-admin.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        {{- if .Values.env }}
+          env:
+          {{- if .Values.env.lang }}
+            - name: LANG
+              value: {{ .Values.env.lang  | quote }}
+          {{- end }}
+          {{- if .Values.env.javaHome }}
+            - name: JAVA_HOME
+              value: {{ .Values.env.javaHome }}
+          {{- end }}
+          {{- if .Values.env.javaHome }}
+            - name: TZ
+              value: {{ .Values.env.timezone }}
+          {{- end }}
+          {{- if .Values.datasource }}
+            - name: PARAMS
+              value: {{ template "xxl-job-admin.datasource" . }}
+          {{- end }}
+        {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            tcpSocket:
+              port: 8080
+          {{- end }}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            tcpSocket:
+              port: 8080
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- include "xxl-job-admin.tplValue" (dict "value" .Values.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity: {{- include "xxl-job-admin.tplValue" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- include "xxl-job-admin.tplValue" (dict "value" .Values.tolerations "context" $) | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,31 @@
+{{ if .Values.storageClass.create -}}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.storageClass.name }}
+{{ include "nfs.labels" . | indent 2 }}
+{{- if .Values.storageClass.defaultClass }}
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+{{- end }}
+provisioner: {{ template "nfs.provisionerName" . }}
+volumeBindingMode: {{ .Values.storageClass.volumeBindingMode }}
+reclaimPolicy: {{ .Values.storageClass.reclaimPolicy }}
+allowVolumeExpansion: {{ .Values.storageClass.allowVolumeExpansion }}
+parameters:
+  server: "{{ .Values.storageClass.server }}"
+  share: "{{ .Values.storageClass.share }}"
+  archiveOnDelete: "{{ .Values.storageClass.archiveOnDelete }}"
+  {{- if .Values.storageClass.pathPattern }}
+  pathPattern: "{{ .Values.storageClass.pathPattern }}"
+  {{- end }}
+  {{- if .Values.storageClass.onDelete }}
+  onDelete: "{{ .Values.storageClass.onDelete }}"
+  {{- end }}
+{{- if .Values.storageClass.mountOptions }}
+mountOptions:
+  {{- range .Values.storageClass.mountOptions }}
+  - {{ . }}
+  {{- end }}
+{{- end }}
+{{- end }}

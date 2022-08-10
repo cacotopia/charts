@@ -1,0 +1,77 @@
+apiVersion: v1
+data:
+  broker-a-s.properties: |
+    brokerClusterName=rocketmq-cluster
+    brokerName=broker-a
+    brokerId=1
+    namesrvAddr=mq-namesrv-0.mq-namesrv.{{ .Values.cm.namespace }}.svc.cluster.local:20901;mq-namesrv-1.mq-namesrv.{{ .Values.cm.namespace }}.svc.cluster.local:20901
+    defaultTopicQueueNums=4
+    autoCreateTopicEnable=true
+    autoCreateSubscriptionGroup=true
+    listenPort=20911
+    deleteWhen=04
+    fileReservedTime=120
+    mapedFileSizeCommitLog=1073741824
+    mapedFileSizeConsumeQueue=300000
+    diskMaxUsedSpaceRatio=88
+    storePathRootDir=/data/rocketmq/store
+    maxMessageSize=65536
+    brokerRole=SLAVE
+    flushDiskType=ASYNC_FLUSH
+  broker-a.properties: |
+    brokerClusterName=rocketmq-cluster
+    brokerName=broker-a
+    brokerId=0
+    namesrvAddr=mq-namesrv-0.mq-namesrv.{{ .Values.cm.namespace }}.svc.cluster.local:20901;mq-namesrv-1.mq-namesrv.{{ .Values.cm.namespace }}.svc.cluster.local:20901
+    defaultTopicQueueNums=4
+    autoCreateTopicEnable=true
+    autoCreateSubscriptionGroup=true
+    listenPort=20911
+    deleteWhen=04
+    fileReservedTime=120
+    mapedFileSizeCommitLog=1073741824
+    mapedFileSizeConsumeQueue=300000
+    diskMaxUsedSpaceRatio=88
+    storePathRootDir=/data/rocketmq/store
+    maxMessageSize=65536
+    brokerRole=ASYNC_MASTER
+    flushDiskType=ASYNC_FLUSH
+  broker-b-s.properties: |
+    brokerClusterName=rocketmq-cluster
+    brokerName=broker-b
+    brokerId=1
+    namesrvAddr=mq-namesrv-0.mq-namesrv.{{ .Values.cm.namespace }}.svc.cluster.local:20901;mq-namesrv-1.{{ .Values.cm.namespace }}.dev-rocketmq.svc.cluster.local:20901
+    defaultTopicQueueNums=4
+    autoCreateTopicEnable=true
+    autoCreateSubscriptionGroup=true
+    listenPort=20911
+    deleteWhen=04
+    fileReservedTime=120
+    mapedFileSizeCommitLog=1073741824
+    mapedFileSizeConsumeQueue=300000
+    diskMaxUsedSpaceRatio=88
+    storePathRootDir=/data/rocketmq/store
+    maxMessageSize=65536
+    brokerRole=SLAVE
+    flushDiskType=ASYNC_FLUSH
+  broker-b.properties: |
+    brokerClusterName=rocketmq-cluster
+    brokerName=broker-b
+    brokerId=0
+    namesrvAddr=mq-namesrv-0.mq-namesrv.{{ .Values.cm.namespace }}.svc.cluster.local:20901;mq-namesrv-1.mq-namesrv.{{ .Values.cm.namespace }}.svc.cluster.local:20901
+    defaultTopicQueueNums=4
+    autoCreateTopicEnable=true
+    autoCreateSubscriptionGroup=true
+    listenPort=20911
+    deleteWhen=04
+    fileReservedTime=120
+    mapedFileSizeCommitLog=1073741824
+    mapedFileSizeConsumeQueue=300000
+    diskMaxUsedSpaceRatio=88
+    storePathRootDir=/data/rocketmq/store
+    maxMessageSize=65536
+    brokerRole=ASYNC_MASTER
+    flushDiskType=ASYNC_FLUSH
+kind: ConfigMap
+metadata:
+  name: {{ .Values.brokerbs.cm.name }}

@@ -1,0 +1,138 @@
+customLabels: {}
+image:
+    nfs:
+        repository: gcr.io/k8s-staging-sig-storage/nfsplugin
+        tag: canary
+        pullPolicy: IfNotPresent
+    csiProvisioner:
+        repository: docker.io/objectscale/csi-provisioner
+        tag: v3.1.0
+        pullPolicy: IfNotPresent
+    livenessProbe:
+        repository: docker.io/objectscale/livenessprobe
+        tag: v2.6.0
+        pullPolicy: IfNotPresent
+    nodeDriverRegistrar:
+        repository: docker.io/objectscale/csi-node-driver-registrar
+        tag: v2.5.0
+        pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true # When true, service accounts will be created for you. Set to false if you want to use your own.
+  controller: csi-nfs-controller-sa # Name of Service Account to be created or used
+
+rbac:
+  create: true
+  name: nfs
+
+driver:
+  name: nfs.csi.k8s.io
+  mountPermissions: 0777
+
+feature:
+  enableFSGroupPolicy: true
+  enableInlineVolume: false
+
+kubeletDir: /var/lib/kubelet
+
+controller:
+  name: csi-nfs-controller
+  replicas: 1
+  runOnMaster: false
+  livenessProbe:
+    healthPort: 29652
+  logLevel: 5
+  workingMountDir: "/tmp"
+  dnsPolicy: Default  # available values: Default, ClusterFirstWithHostNet, ClusterFirst
+  tolerations:
+    - key: "node-role.kubernetes.io/master"
+      operator: "Exists"
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/controlplane"
+      operator: "Exists"
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+  resources:
+    csiProvisioner:
+      limits:
+        memory: 400Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    livenessProbe:
+      limits:
+        memory: 100Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    nfs:
+      limits:
+        memory: 200Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+
+node:
+  name: csi-nfs-node
+  dnsPolicy: Default  # available values: Default, ClusterFirstWithHostNet, ClusterFirst
+  maxUnavailable: 1
+  logLevel: 5
+  livenessProbe:
+    healthPort: 29653
+  tolerations:
+    - operator: "Exists"
+  resources:
+    livenessProbe:
+      limits:
+        memory: 100Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    nodeDriverRegistrar:
+      limits:
+        memory: 100Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    nfs:
+      limits:
+        memory: 300Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+
+## For creating the StorageClass automatically:
+storageClass:
+  create: true
+
+  ## Set a provisioner name. If unset, a name will be generated.
+  provisionerName: nfs.csi.k8s.io
+
+  ## Set StorageClass as the default StorageClass
+  ## Ignored if storageClass.create is false
+  defaultClass: false
+
+  ## Set a StorageClass name
+  ## Ignored if storageClass.create is false
+  name: nfs-csi
+
+  ## ReclaimPolicy field of the class, which can be either Delete or Retain
+  reclaimPolicy: Delete
+  volumeBindingMode: Immediate
+  allowVolumeExpansion: true
+  server: 10.0.0.42
+  share: /srv/nfs
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+
+## Reference to one or more secrets to be used when pulling images
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+##
+imagePullSecrets: []
+# - name: "image-pull-secret"

@@ -1,0 +1,85 @@
+{{- with .Values.rocketui }}
+{{- if eq .service.type "NodePort" }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ .service.name }}
+  name: {{ .service.name }}
+spec:
+  type: {{ .service.type }}
+  ports:
+  - port: 80
+    targetPort: 8080
+    name: console-port
+    nodePort: 30916
+  selector:
+    app: {{ .service.type }}
+{{- else }}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .service.name }}
+  labels:
+    app: {{ .service.name }}
+  annotations:
+    lb.kubesphere.io/v1alpha1: porter
+    protocol.porter.kubesphere.io/v1alpha1: layer2
+    eip.porter.kubesphere.io/v1alpha2: porter-layer2-eip
+spec:
+  selector:
+    app: {{ .service.name }}
+  type: {{ .service.type }}
+  ports:
+  - port: 80
+    targetPort: 8080
+    name: console-port
+  externalTrafficPolicy: Cluster
+{{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .dep.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .dep.name }}
+  template:
+    metadata:
+     labels:
+       app: {{ .dep.name }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - {{ .dep.name }}
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: {{ .dep.name }}
+        image: harbor.assistfc.com/middleware/rocketmq-console:2.0.0
+        imagePullPolicy: Always
+        env:
+        - name: {{ .dep.env.name }}
+          value: {{ .dep.env.value }}
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh","-c","touch /tmp/health"]
+        livenessProbe:
+          exec:
+            command: ["test","-e","/tmp/health"]
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 15
+{{- end }}

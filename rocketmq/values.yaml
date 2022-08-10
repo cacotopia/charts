@@ -1,0 +1,86 @@
+brokera:
+  service:
+    name: broker-a
+    type: LoadBalancer   # NodePort//LoadBalancer  
+    nodeport: 30911  
+  sts:
+    name: broker-a
+    version: 4.8.0
+    port: 20911
+    storageClassName: cephfs
+    env: 
+      name: namesrvAddr
+      value: mq-namesrv-0.mq-namesrv.dev-rocketmq.svc.cluster.local:20901;mq-namesrv-1.mq-namesrv.dev-rocketmq.svc.cluster.local:20901   
+  cm:
+    name: rocketmq-config
+brokeras:
+  service:
+    name: broker-a-s
+    type: LoadBalancer   # NodePort//LoadBalancer  
+    nodeport: 30912  
+  sts:
+    version: 4.8.0
+    name: broker-a-s
+    port: 20911
+    storageClassName: cephfs
+    env:
+      name: namesrvAddr
+      value: mq-namesrv-0.mq-namesrv.dev-rocketmq.svc.cluster.local:20901;mq-namesrv-1.mq-namesrv.dev-rocketmq.svc.cluster.local:20901
+  cm:
+    name: rocketmq-config
+brokerb:
+  service:
+    name: broker-b
+    type: LoadBalancer   # NodePort//LoadBalancer  
+    nodeport: 30913  
+  sts:
+    version: 4.8.0
+    name: broker-b
+    port: 20911
+    storageClassName: cephfs
+    env:
+      name: namesrvAddr
+      value: mq-namesrv-0.mq-namesrv.dev-rocketmq.svc.cluster.local:20901;mq-namesrv-1.mq-namesrv.dev-rocketmq.svc.cluster.local:20901
+  cm:
+    name: rocketmq-config
+          
+brokerbs:
+  service:
+    name: broker-b-s
+    type: LoadBalancer   # NodePort//LoadBalancer  
+    nodeport: 30914
+  sts:
+    version: 4.8.0
+    name: broker-b-s
+    port: 20911
+    storageClassName: cephfs
+    env:
+      name: namesrvAddr
+      value: mq-namesrv-0.mq-namesrv.dev-rocketmq.svc.cluster.local:20901;mq-namesrv-1.mq-namesrv.dev-rocketmq.svc.cluster.local:20901
+  cm:
+    name: rocketmq-config
+
+namesrvd:
+  service: 
+    name: mq-namesrv
+    type: LoadBalancer
+    nodeport: 30915
+  sts:
+    version: 4.8.0
+    name: mq-namesrv
+    replicas: 2
+
+rocketui:
+  service:     
+    name: mq-externals
+    type: LoadBalancer # NodePort//LoadBalancer 
+    nodeport: 30916   
+  dep:
+    name: mq-externals
+    env:
+      name: JAVA_OPTS
+      value: -Drocketmq.namesrv.addr=mq-namesrv-0.mq-namesrv.dev-rocketmq.svc.cluster.local:20901;mq-namesrv-1.mq-namesrv.dev-rocketmq.svc.cluster.local:20901 -Dcom.rocketmq.sendMessageWithVIPChannel=false
+
+cm:
+  name: rocketmq-config        
+  namespace: dev-rocketmq

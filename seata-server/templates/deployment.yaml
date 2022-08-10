@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "seata-server.name" . }}
+  labels:
+{{ include "seata-server.labels" . | indent 4 }}
+spec:
+  selector:
+    matchLabels: {{- include "seata-server.matchLabels" . | nindent 6 }}
+  {{- if .Values.updateStrategy }}
+  strategy: {{ toYaml .Values.updateStrategy | nindent 4 }}
+  {{- end }}
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels: {{- include "seata-server.labels" . | nindent 8 }}
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{- if .Values.podAnnotations }}
+        {{- include "seata-server.tplValue" (dict "value" .Values.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
+      {{- end }}
+    spec:
+{{- include "seata-server.imagePullSecrets" . | indent 6 }}
+      {{- if .Values.schedulerName }}
+      schedulerName: {{ .Values.schedulerName | quote }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity: {{- include "seata-server.tplValue" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- include "seata-server.tplValue" (dict "value" .Values.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- include "seata-server.tplValue" (dict "value" .Values.tolerations "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.securityContext.enabled }}
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ template "seata-server.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        {{- if .Values.env }}
+          env:
+          {{- if .Values.env.seataIp }}
+            - name: SEATA_IP
+              value: {{ .Values.env.seataIp  | quote }}
+          {{- end }}
+          {{- if .Values.env.seataPort }}
+            - name: SEATA_PORT
+              value: {{ .Values.env.seataPort | quote }}
+          {{- end }}
+          {{- if .Values.env.seataEnv }}
+            - name: SEATA_ENV
+              value: {{ .Values.env.seataEnv }}
+          {{- end }}
+          {{- if .Values.env.seataConfigName }}
+            - name: SEATA_CONFIG_NAME
+              value: {{ .Values.env.seataConfigName }}
+          {{- end }}
+          {{- if .Values.env.serverNode }}
+            - name: SERVER_NODE
+              value: {{ .Values.env.serverNode | quote }}
+          {{- end }}
+          {{- if .Values.env.storeMode }}
+            - name: STORE_MODE
+              value: {{ .Values.env.storeMode }}
+          {{- end }}
+        {{- end }}
+          ports:
+            - name: http
+              protocol: TCP
+              containerPort: 8091
+          volumeMounts:
+            - name: seata-config
+              mountPath: /root/seata-config
+          {{- if .Values.volume }}
+            {{- range .Values.volume }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end}}
+          {{- end}}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            tcpSocket:
+              port: 8091
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            tcpSocket:
+              port: 8091
+          {{- end }}
+        {{- if .Values.resources }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+        {{- end }}
+      volumes:
+        - name: seata-config
+          configMap:
+            name: seata-server-config
+     {{- if .Values.volume }}
+        {{- range .Values.volume }}
+        - name: {{ .name }}
+          hostPath:
+            path: {{ .hostPath}}
+        {{- end}}
+     {{- end}}
