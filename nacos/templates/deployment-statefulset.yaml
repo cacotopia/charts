@@ -153,7 +153,13 @@ spec:
             - name: NACOS_SERVER_PORT
               value: "8848"
             - name: NACOS_APPLICATION_PORT
-              value: "8848"	  
+              value: "8848"
+            - name: MODE
+            {{- if gt (.Values.replicaCount | int) 1 }}
+              value: "cluster"
+            {{- else }}
+              value: "standalone"
+            {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}

@@ -63,7 +63,7 @@ replicaCount: 3
 image:
   registry: docker.io
   repository: nacos/nacos-server
-  tag: v2.1.1
+  tag: v2.1.0
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -187,22 +187,22 @@ healthCheck:
   type: http  # http/tcp
   port: http  # 上面的端口名或端口
   httpPath: '/'  # http时必须设置
-  livenessProbe:
-    enabled: true
-    httpPath: '/nacos/v1/console/health/liveness'  # http时必须设置
-    initialDelaySeconds: 60   # 初始延迟秒数, k8s默认值为0，最小为0
-    periodSeconds: 30  # 检测周期，k8s默认值10，最小为1
-    timeoutSeconds: 3  # 检测超时，k8s默认值1，最小为1
-    #  successThreshold: 1  # 失败后成功次数，k8s默认值1，最小为1，只能设置为1
-    #  failureThreshold: 5  # 失败后重试次数，k8s默认值3，最小为1
   readinessProbe:
     enabled: true
     httpPath: '/nacos/v1/console/health/readiness'  # http时必须设置
-    initialDelaySeconds: 60   # 初始延迟秒数, k8s默认值为0，最小为0
+    initialDelaySeconds: 90   # 初始延迟秒数, k8s默认值为0，最小为0
     periodSeconds: 30  # 检测周期，k8s默认值10，最小为1
     timeoutSeconds: 5  # 检测超时，k8s默认值1，最小为1
     successThreshold: 1  # 失败后成功次数，k8s默认值1，最小为1，只能设置为1
-    failureThreshold: 5  # 失败后重试次数，k8s默认值3，最小为1
+    failureThreshold: 10  # 失败后重试次数，k8s默认值3，最小为1
+  livenessProbe:
+    enabled: true
+    httpPath: '/nacos/v1/console/health/liveness'  # http时必须设置
+    initialDelaySeconds: 90   # 初始延迟秒数, k8s默认值为0，最小为0
+    periodSeconds: 30  # 检测周期，k8s默认值10，最小为1
+    timeoutSeconds: 3  # 检测超时，k8s默认值1，最小为1
+    successThreshold: 1  # 失败后成功次数，k8s默认值1，最小为1，只能设置为1
+    failureThreshold: 10  # 失败后重试次数，k8s默认值3，最小为1
 
 ## nacos containers' resource requests and limits
 ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
@@ -366,6 +366,9 @@ persistence:
     - mountPath: /home/nacos/logs
       name: data-storage
       subPath: logs
+    - mountPath: /home/nacos/init.d
+      name: data-storage
+      subPath: init.d
   ## @param persistence.selector [object] Selector to match an existing Persistent Volume
   ## selector:
   ##   matchLabels:
