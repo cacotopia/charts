@@ -1,0 +1,76 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    prometheus: k8s
+    role: alert-rules
+  name: prometheus-k8s-rules-base
+  namespace: kube-suite
+spec:
+  groups:
+  - name: nodeStatsAlert
+    #报警组规则
+    rules:
+    #告警名称，需唯一
+    - alert: nodeCpuUsageAlert
+      #promQL表达式
+      expr: (100 - (avg by (instance) (irate(node_cpu_seconds_total{job=~"node-exporter.*",mode="idle"}[5m])) * 100)) > 80
+      #满足此表达式持续时间超过for规定的时间才会触发此报警
+      for: 5m
+      labels:
+        #严重级别
+        severity: major
+      annotations:
+      #发出的告警标题
+        summary: "{{`实例 {{ $labels.instance }} CPU 使用率过高`}}"
+        #发出的告警内容
+        description: "{{`实例{{ $labels.instance }} CPU 使用率超过 80% (当前值为: {{ $value }})`}}"
+        value: $value
+
+    - alert: nodeMemUsageAlert
+      expr: 100 * (1 - ((avg_over_time(node_memory_MemFree_bytes{job=~"node-exporter.*"}[5m]) + avg_over_time(node_memory_Cached_bytes{job=~"node-exporter.*"}[5m]) + avg_over_time(node_memory_Buffers_bytes{job=~"node-exporter.*"}[5m])) / avg_over_time(node_memory_MemTotal_bytes{job=~"node-exporter.*"}[5m]))) > 80
+      for: 5m
+      labels:
+        severity: major
+      annotations:
+        summary: "{{`实例 {{ $labels.instance }} 内存使用率过高`}}"
+        description: "{{`实例 {{ $labels.instance }} 内存使用率超过 80% (当前值为: {{ $value }})`}}"
+        value: $value
+
+    - alert: nodeSysDiskUsageAlert
+      expr: (100 - ((node_filesystem_avail_bytes{job=~"node-exporter.*",mountpoint=~"/",fstype!="rootfs"} * 100) / node_filesystem_size_bytes{job=~"node-exporter.*",mountpoint=~"/",fstype!="rootfs"})) > 70
+      for: 5m
+      labels:
+        severity: major
+      annotations:
+        summary: "{{`实例 {{ $labels.instance }} 硬盘(系统盘)使用率过高`}}"
+        description: "{{`实例 {{ $labels.instance }} 硬盘(系统盘)使用率超过 70% (当前值为: {{ $value }})`}}"
+        value: $value
+
+    - alert: nodeDataDiskUsageAlert
+      expr: (100 - ((node_filesystem_avail_bytes{job=~"node-exporter.*",mountpoint=~"/data",fstype!="rootfs"} * 100) / node_filesystem_size_bytes{job=~"node-exporter.*",mountpoint=~"/data",fstype!="rootfs"})) > 70
+      for: 5m
+      labels:
+        severity: major
+      annotations:
+        summary: "{{`实例 {{ $labels.instance }} 硬盘(数据盘)使用率过高`}}"
+        description: "{{`实例 {{ $labels.instance }} 硬盘(数据盘)使用率超过 70% (当前值为: {{ $value }})`}}"
+        value: $value
+
+    - alert: K8sNodeUnavailable
+      expr: (up{job="kubelet",metrics_path="/metrics"}) != 1
+      for: 5m
+      labels:
+        severity: major
+      annotations:
+        summary: "{{`{{$labels.instance}}: K8s Node Unavailable`}}"
+        description: "{{`{{$labels.instance}}: K8s Node Unavailable`}}"
+    
+    - alert: NodeUnavailable
+      expr: (up{job=~"node-exporter.*"}) != 1
+      for: 5m
+      labels:
+        severity: major
+      annotations:
+        summary: "{{`{{$labels.instance}}`}}: Node Unavailable"
+        description: "{{`{{$labels.instance}}`}}: Node Unavailable"

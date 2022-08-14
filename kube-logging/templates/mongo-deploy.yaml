@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: kube-suite
+  name: mongo-deploy
+  labels:
+    service: mongo-deploy
+  annotations:
+    backup.velero.io/backup-volumes: data
+spec:
+  selector:
+    matchLabels:
+      app: mongo-deploy
+  replicas: 1
+  serviceName: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo-deploy
+        service: mongo-deploy
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:3.6.17
+        env:
+        - name: TZ
+          value: Asia/Shanghai
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+          - name: data
+            mountPath: /data/db
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: kube-logging-mongo-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: kube-suite
+  name: mongo
+spec:
+  selector:
+    service: mongo-deploy
+  ports:
+  - name: "27017"
+    port: 27017
+    targetPort: 27017
+

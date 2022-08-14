@@ -1,0 +1,47 @@
+# kube-logging es data pvc
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kube-logging-e6-data-pvc
+  namespace: kube-suite
+spec:
+  storageClassName: "ceph-block"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+--- 
+
+# kube-logging mongo data pvc
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kube-logging-mongo-data-pvc
+  namespace: kube-suite
+spec:
+  storageClassName: "ceph-block"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+--- 
+
+# kube-monitoring grafana data pvc
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kube-monitoring-grafana-data-pvc
+  namespace: kube-suite
+spec:
+  storageClassName: "ceph-block"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+--- 

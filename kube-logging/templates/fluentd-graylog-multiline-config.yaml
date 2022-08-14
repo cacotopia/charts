@@ -1,0 +1,13 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: fluentd-graylog-multiline-config
+  namespace: kube-suite
+data:
+  multiline.conf: |-
+    <filter **>
+      @type concat
+      key log
+      multiline_start_regexp /^[0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{2}-[0-9]{2}-[0-9]{2}/
+      flush_interval 5
+    </filter>

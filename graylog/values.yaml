@@ -25,7 +25,7 @@ serviceAccount:
   annotations: {}
 
 tags:
-  # If true, this chart will install Elasticsearch from requirement dependencies
+ 
   install-elasticsearch: true
   # If true, this chart will install MongoDB replicaset from requirement dependencies
   install-mongodb: true
@@ -373,6 +373,7 @@ graylog:
   existingRootSecret: ""
 
   elasticsearch:
+    
     ## Major version of the Elasticsearch version used.
     ## It is required by Graylog 4. See https://docs.graylog.org/en/4.0/pages/configuration/elasticsearch.html#available-elasticsearch-configuration-tunables
     version: "7"
@@ -390,6 +391,7 @@ graylog:
     uriSSL: false
 
   mongodb:
+   
     ## MongoDB connection string
     ## See https://docs.mongodb.com/manual/reference/connection-string/ for details
     # uri: mongodb://user:pass@host1:27017,host2:27017,host3:27017/graylog?replicaSet=rs01
@@ -530,6 +532,8 @@ graylog:
 ## It is strongly recommend to install Elasticsearch manually without using the dependency.
 ## To install Elasticsearch on production, please follow the official guide https://github.com/elastic/helm-charts/tree/main/elasticsearch#how-to-deploy-dedicated-nodes-types
 elasticsearch:
+   # If true, this chart will install Elasticsearch from requirement dependencies
+  enabled: true
   replicas: 1
   minimumMasterNodes: 1
   antiAffinity: "soft"
@@ -550,6 +554,7 @@ elasticsearch:
 
 # Specify Mongodb settings. Ignore this section if you install MongoDB manually.
 mongodb:
+  enabled: true
   architecture: "replicaset"
   useStatefulSet: true
   replicaCount: 1

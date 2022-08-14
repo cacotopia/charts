@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: kube-suite
+  name: graylog-deploy
+  labels:
+    service: graylog-deploy
+spec:
+  selector:
+    matchLabels:
+      app: graylog-deploy
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: graylog-deploy
+        service: graylog-deploy
+    spec:
+      containers:
+      - name: graylog3
+        image: graylog/graylog:3.3.16
+        resources:
+          limits:
+            cpu: 500m 
+            memory: 1Gi
+        env:
+        - name: TZ
+          value: Asia/Shanghai
+        - name: GRAYLOG_PASSWORD_SECRET
+          value: g0ABP9MJnWCjWtBX9JHFgjKAmD3wGXP3E0JQNOKlquDHnCn5689QAF8rRL66HacXLPA6fvwMY8BZoVVw0JqHnSAZorDDOdCk
+        - name: GRAYLOG_ROOT_PASSWORD_SHA2
+          value: 8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+        - name: GRAYLOG_HTTP_EXTERNAL_URI
+          value: http://{{ .Values.graylog.external_host }}/
+        - name: GRAYLOG_ELASTICSEARCH_HOSTS
+          value: http://elasticsearch6.elastic-stack:9200
+        - name: GRAYLOG_MONGODB_URI
+          value: mongodb://mongo:27017/graylog
+        ports:
+        - containerPort: 9000
+        - containerPort: 12201
+        volumeMounts:
+          - name: config-volume
+            mountPath: /usr/share/graylog/data/config/graylog.conf
+            subPath: graylog.conf
+      volumes:
+        - name: config-volume
+          configMap:
+            name: graylog-config
+            items:
+            - key: graylog.conf
+              path: graylog.conf
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: kube-suite
+  name: graylog3
+spec:
+  type: ClusterIP
+  selector:
+    service: graylog-deploy
+  ports:
+  - name: http
+    port: 9000
+    targetPort: 9000
+  - name: "12201"
+    port: 12201
+    protocol: UDP
+    targetPort: 12201
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: graylog3-ingress
+  namespace: kube-suite
+spec:
+  ingressClassName: "nginx"
+  rules:
+  - host: graylog.sendpulsar.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: graylog3
+            port:
+              name: http
+        path: /
+        pathType: Prefix

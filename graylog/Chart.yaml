@@ -11,18 +11,20 @@ keywords:
   - gelf
 icon: https://global-uploads.webflow.com/5a218ef7897bf400019e2f16/5a218ef7897bf400019e2f60_logo-graylog.png
 sources:
-  - https://github.com/KongZ/charts
+  - https://github.com/cacotopia/charts
 maintainers:
-  - name: KongZ
-    email: goonohc@gmail.com
+  - name: cacotopia
+    email: cacotopia@126.com
 dependencies:
   - name: elasticsearch
     version: 7.10.2
     repository: https://helm.elastic.co
     tags:
-      - install-elasticsearch
+      - elasticsearch
+    condition: elasticsearch.enabled
   - name: mongodb
     version: 10.31.2
     repository: https://charts.bitnami.com/bitnami
     tags:
-      - install-mongodb
+      - mongodb
+    condition: mongodb.enabled
