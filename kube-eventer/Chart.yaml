@@ -1,0 +1,28 @@
+apiVersion: v2
+engine: gotpl
+appVersion: 1.2.0
+version: 1.2.0
+name: kube-eventer
+description: kube-eventer is an event emitter that sends kubernetes events to sinks(.e.g, dingtalk,sls,kafka and so on).
+home: https://github.com/AliyunContainerService/kube-eventer
+icon: https://bitnami.com/assets/stacks/kubernetes-event-exporter/img/kubernetes-event-exporter-stack-220x234.png
+keywords:
+  - alerting
+  - event exporting
+  - events
+  - kubernetes events
+  - monitoring
+  - observability
+annotations:
+  category: Infrastructure
+maintainers:
+  - name: cacotopia
+    url: https://cacotopia.github.io
+sources:
+  - https://github.com/AliyunContainerService/kube-eventer
+dependencies:
+  - name: common
+    repository: https://charts.bitnami.com/bitnami
+    tags:
+      - bitnami-common
+    version: 1.x.x
