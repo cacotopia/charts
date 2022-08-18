@@ -1,0 +1,70 @@
+{{- if .Values.initDB.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "common.names.fullname" . }}-initdb-sql
+  namespace: {{ .Release.Namespace }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+data:
+  initdb.sql: |
+{{- if .Values.initDB.force }}
+    DROP DATABASE IF EXISTS `{{- .Values.mysql.database -}}`;
+{{- end }}
+    CREATE DATABASE IF NOT EXISTS `{{- .Values.mysql.database -}}` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+    USE `{{- .Values.mysql.database -}}`;
+    -- the table to store GlobalSession data
+    CREATE TABLE IF NOT EXISTS `global_table` (
+      `xid` varchar(128)  not null,
+      `transaction_id` bigint,
+      `status` tinyint not null,
+      `application_id` varchar(32),
+      `transaction_service_group` varchar(32),
+      `transaction_name` varchar(128),
+      `timeout` int,
+      `begin_time` bigint,
+      `application_data` varchar(2000),
+      `gmt_create` datetime,
+      `gmt_modified` datetime,
+      primary key (`xid`),
+      key `idx_gmt_modified_status` (`gmt_modified`, `status`),
+      key `idx_transaction_id` (`transaction_id`)
+    );
+
+    -- the table to store BranchSession data
+    CREATE TABLE IF NOT EXISTS `branch_table` (
+      `branch_id` bigint not null,
+      `xid` varchar(128) not null,
+      `transaction_id` bigint ,
+      `resource_group_id` varchar(32),
+      `resource_id` varchar(256) ,
+      `lock_key` varchar(128) ,
+      `branch_type` varchar(8) ,
+      `status` tinyint,
+      `client_id` varchar(64),
+      `application_data` varchar(2000),
+      `gmt_create` datetime,
+      `gmt_modified` datetime,
+      primary key (`branch_id`),
+      key `idx_xid` (`xid`)
+    );
+
+    -- the table to store lock data
+    CREATE TABLE IF NOT EXISTS `lock_table` (
+      `row_key` varchar(128) not null,
+      `xid` varchar(96),
+      `transaction_id` long ,
+      `branch_id` long,
+      `resource_id` varchar(256) ,
+      `table_name` varchar(32) ,
+      `pk` varchar(36) ,
+      `gmt_create` datetime ,
+      `gmt_modified` datetime,
+      primary key(`row_key`)
+    );
+{{- end }}

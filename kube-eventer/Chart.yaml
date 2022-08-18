@@ -21,8 +21,8 @@ maintainers:
 sources:
   - https://github.com/AliyunContainerService/kube-eventer
 dependencies:
-  - name: common
-    repository: https://charts.bitnami.com/bitnami
-    tags:
-      - bitnami-common
-    version: 1.x.x
+- name: common
+  repository: https://charts.bitnami.com/bitnami
+  tags:
+  - bitnami-common
+  version: 1.x.x

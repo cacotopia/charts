@@ -16,3 +16,9 @@ maintainers:
 - name: cacotopia
 sources:
 - https://github.com/cacotopia/charts
+dependencies:
+- name: common
+  repository: https://charts.bitnami.com/bitnami
+  tags:
+  - bitnami-common
+  version: 1.x.x

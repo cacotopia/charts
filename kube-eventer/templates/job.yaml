@@ -1,0 +1,82 @@
+{{- if .Values.initDB.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "common.names.fullname" . }}-init-db
+  annotations:
+    "helm.sh/hook-weight": "-1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- if .Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: mysql
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+spec:
+  completions: 1 #任务个数
+  parallelism: 1 #并行数
+  backoffLimit: 6 #失败最多执行几次
+  template:
+    metadata:
+      labels: {{- include "common.labels.standard" . | nindent 8 }}
+        app.kubernetes.io/component: mysql
+    spec:
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" (dict "value" .Values.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.tolerations "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.podAffinityPreset "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.podAntiAffinityPreset "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.nodeAffinityPreset.type "key" .Values.nodeAffinityPreset.key "values" .Values.nodeAffinityPreset.values) | nindent 10 }}
+      {{- end }}
+{{- include "nacos.imagePullSecrets" . | nindent 6 }}
+      restartPolicy: OnFailure
+      containers:
+      - name: init-mysql-nacos-sql
+        image: {{ template "nacos.initDB.image" . }}
+        imagePullPolicy: {{ .Values.initDB.image.pullPolicy }}
+        env: 
+          - name: MYSQL_INIT_HOST
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "common.names.fullname" . }}
+                key: mysqlHost
+          - name: MYSQL_INIT_PORT
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "common.names.fullname" . }}
+                key: mysqlPort
+          - name: MYSQL_DB
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "common.names.fullname" . }}
+                key: mysqlDatabase
+          - name: MYSQL_INIT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "common.names.fullname" . }}
+                key: mysqlUsername
+          - name: MYSQL_INIT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "common.names.fullname" . }}
+                key: mysqlUserPassword
+        volumeMounts:
+        - name: mysql-initdb
+          mountPath: /mysql-init.d/
+      volumes:
+      - name: mysql-initdb
+        configMap:
+          name: {{ template "common.names.fullname" . }}-initdb-sql
+          items:
+          - key: initdb.sql
+            path: initdb.sql
+{{- end }}

@@ -209,9 +209,9 @@ sink:
 ## @param sinks.mysql sink to mysql database configuration parameter
 ## @param sinks.mysql.serverHost
 ## @param sinks.mysql.serverPort 
-## @param sinks.mysql.user  mysql username (default: `root`)
-## @param sinks.mysql.pw  mysql password (default: `root`)
-## @param sinks.mysql.db  mysql Database name (default: `k8s`)
+## @param sinks.mysql.username  mysql username (default: `root`)
+## @param sinks.mysql.password  mysql password (default: `root`)
+## @param sinks.mysql.database  mysql Database name (default: `k8s`)
 ## @param sinks.mysql.urlParams  mysql Database name (default: `k8s`)
   mysql: 
     enabled: false
@@ -414,4 +414,13 @@ initContainers: []
 ##       - name: portname
 ##         containerPort: 1234
 ##
+
+initDB:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: monasca/mysql-init
+    tag: 1.5.5
+    pullPolicy: IfNotPresent
+
 sidecars: []

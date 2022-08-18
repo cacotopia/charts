@@ -113,6 +113,13 @@ imagePullSecrets:
 {{- end -}}
 
 {{/*
+Return the proper Nacos initDB image name
+*/}}
+{{- define "seata-server.initDB.image" -}}
+{{- include "common.images.image" (dict "imageRoot" .Values.initDB.image "global" .Values.global) -}}
+{{- end -}}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "seata-server.serviceAccountName" -}}
