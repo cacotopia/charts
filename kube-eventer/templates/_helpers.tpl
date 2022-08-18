@@ -25,6 +25,37 @@ leaderElection: {}
 {{- end -}}
 
 {{/*
+Return the proper Docker Image Registry Secret Names
+*/}}
+{{- define "kube-eventer.imagePullSecrets" -}}
+{{/*
+Helm 2.11 supports the assignment of a value to a variable defined in a different scope,
+but Helm 2.9 and 2.10 does not support it, so we need to implement this if-else logic.
+Also, we can not use a single if because lazy evaluation is not an option
+*/}}
+{{- if .Values.global }}
+{{- if .Values.global.imagePullSecrets }}
+imagePullSecrets:
+{{- range .Values.global.imagePullSecrets }}
+  - name: {{ . }}
+{{- end }}
+{{- else if .Values.image.pullSecrets }}
+imagePullSecrets:
+{{- range .Values.image.pullSecrets }}
+  - name: {{ . }}
+{{- end }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the proper Nacos initDB image name
+*/}}
+{{- define "kube-eventer.initDB.image" -}}
+{{- include "common.images.image" (dict "imageRoot" .Values.initDB.image "global" .Values.global) -}}
+{{- end -}}
+
+{{/*
 Create final config by merging user supplied config and default config
 */}}
 {{- define "kube-eventer.config" -}}
