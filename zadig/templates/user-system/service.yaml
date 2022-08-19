@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: user
+  labels:
+    {{- include "zadig.microservice.user.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: {{ template "zadig.microservice.user.port" . }}
+      targetPort: {{ template "zadig.microservice.user.port" . }}
+  selector:
+    {{- include "zadig.microservice.user.selectorLabels" . | nindent 4 }}

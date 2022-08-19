@@ -1,0 +1,82 @@
+tags:
+  # enterprise is the main switch for the zadig version installed.
+  enterprise: false
+  # collie is the collie subchart switch
+  collie: false
+  # ci-support is the switch for installing sonarqube service. It is turned off by default.
+  ci-support: false
+  # mongodb is the switch for installing mongodb for zadig, if an external database is provided, set this to false
+  mongodb: false
+  # minio is the switch for installing minIO for zadig, if an external object storage is provided, set this to false
+  minio: false
+  ingressController: false
+  # mysql is the switch for installing mysql for zadig, if an external database is provided, set this to false
+  mysql: false
+
+global:
+  extensions:
+    extAuth:
+      extauthzServerRef:
+        namespace: zadig-system 
+
+endpoint:
+  # endpoint.type is the type of Zadig system endpoint. It can be of type FQDN or IP. By default the type is FQDN.
+  type: FQDN
+  # FQDN is the domain name the user choose to visit in. It must be set if endpoint is of type FQDN.
+  FQDN: cicd.sendpulsar.com 
+
+dex:
+  fullnameOverride: zadig-dex
+  config:
+    issuer: http://zadig-dex:5556/dex
+    staticClients: 
+     - id: zadig
+       name: 'zadig'
+       secret: ZXhhbXBsZS1hcHAtc2VjcmV0
+       redirectURIs:
+        - 'http://cicd.sendpulsar.com/api/v1/callback'
+    storage: 
+      type: mysql
+      config: 
+        host: 192.168.31.151 
+        port: 3306
+        user: root
+        password: yhl1qaz2wsx
+        ssl:
+          mode: "false"
+
+connections:
+  mysql:
+    host: 192.168.31.151:3306 
+    auth:
+      user: root
+      password: yhl1qaz2wsx 
+  mongodb:
+    connectionString: mongodb://zadig:yhl1qaz2wsx@mongodb.mongodb:27017/zadig
+    db: zadig
+
+minio:
+  # endpoint is the endpoint for the minio, if the user choose to provide their own minio
+  endpoint: zadig-minio:9000
+  bucket: zadig
+  persistence: 
+    pv: true
+    storageClass: "ceph-block"
+  accessKey:
+    password: AKIAIOSFODNN72019EXAMPLE
+  secretKey:
+    password: wJalrXUtnFEMI2019K7MDENGbPxRfiCYEXAMPLEKEY
+
+mysql:
+  auth:
+    database: dex
+    rootPassword: yhl1qaz2wsx
+
+init: 
+  adminPassword: zadig
+  adminEmail: cacotopia@126.com 
+
+ingress-nginx:
+  controller: 
+    ingressClass: nginx
+

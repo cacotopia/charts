@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: policy
+  labels:
+    {{- include "zadig.microservice.policy.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: {{ template "zadig.microservice.policy.port" . }}
+      targetPort: {{ template "zadig.microservice.policy.port" . }}
+  selector:
+    {{- include "zadig.microservice.policy.selectorLabels" . | nindent 4 }}

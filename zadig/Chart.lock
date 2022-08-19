@@ -1,0 +1,21 @@
+dependencies:
+- name: ingress-nginx
+  repository: https://kubernetes.github.io/ingress-nginx
+  version: 2.16.0
+- name: minio
+  repository: https://charts.bitnami.com/bitnami
+  version: 7.0.0
+- name: mongodb
+  repository: https://charts.bitnami.com/bitnami
+  version: 10.29.0
+- name: mysql
+  repository: https://charts.bitnami.com/bitnami
+  version: 8.8.12
+- name: dex
+  repository: https://charts.dexidp.io
+  version: 0.6.3
+- name: gloo
+  repository: https://storage.googleapis.com/solo-public-helm
+  version: 1.9.1
+digest: sha256:2b9c32a3d71d3f7c6f1e58b48bbf338120ca15649a194081ca30ecd0e33748aa
+generated: "2021-11-30T18:11:39.751492+08:00"

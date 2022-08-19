@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: picket
+  labels:
+    {{- include "zadig.microservice.picket.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: {{ template "zadig.microservice.picket.port" . }}
+      targetPort: {{ template "zadig.microservice.picket.port" . }}
+  selector:
+    {{- include "zadig.microservice.picket.selectorLabels" . | nindent 4 }}
