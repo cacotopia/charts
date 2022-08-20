@@ -37,11 +37,11 @@ spec:
         podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.podAntiAffinityPreset "context" $) | nindent 10 }}
         nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.nodeAffinityPreset.type "key" .Values.nodeAffinityPreset.key "values" .Values.nodeAffinityPreset.values) | nindent 10 }}
       {{- end }}
-{{- include "nacos.imagePullSecrets" . | nindent 6 }}
+{{- include "kube-eventer.imagePullSecrets" . | indent 6 }}
       restartPolicy: OnFailure
       containers:
-      - name: init-mysql-nacos-sql
-        image: {{ template "nacos.initDB.image" . }}
+      - name: init-mysql-scripts
+        image: {{ template "kube-eventer.initDB.image" . }}
         imagePullPolicy: {{ .Values.initDB.image.pullPolicy }}
         env: 
           - name: MYSQL_INIT_HOST
@@ -68,7 +68,7 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: {{ include "common.names.fullname" . }}
-                key: mysqlUserPassword
+                key: mysqlPassword
         volumeMounts:
         - name: mysql-initdb
           mountPath: /mysql-init.d/

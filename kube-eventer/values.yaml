@@ -417,6 +417,7 @@ initContainers: []
 
 initDB:
   enabled: true
+  force: true
   image:
     registry: docker.io
     repository: monasca/mysql-init
