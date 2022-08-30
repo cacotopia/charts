@@ -4,13 +4,33 @@
 
 replicaCount: 1
 
-image:
-  repository: royalwang/sentinel-dashboard
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.8.4"
+# global:
+#   imageRegistry: myRegistryName
+#   imagePullSecrets:
+#     - myRegistryKeySecretName
 
-imagePullSecrets: []
+## Bitnami WordPress image version
+## ref: https://hub.docker.com/r/bitnami/wordpress/tags/
+##
+image:
+  registry: docker.io
+  repository: royalwang/sentinel-dashboard
+    # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.8.4"
+  ## Specify a imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: IfNotPresent
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ##
+  # pullSecrets:
+  #   - myRegistryKeySecretName
+  ## Set to true if you would like to see extra information on logs
+  ##
+
 nameOverride: ""
 fullnameOverride: ""
 
@@ -23,6 +43,24 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+## Affinity for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+##
+affinity: {}
+
+## Node labels for pod assignment. Evaluated as a template.
+## ref: https://kubernetes.io/docs/user-guide/node-selection/
+##
+nodeSelector: {}
+
+## Tolerations for pod assignment. Evaluated as a template.
+## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+##
+tolerations: {}
+
+## Pod annotations
+## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+##
 podAnnotations: {}
 
 podSecurityContext: {}
@@ -35,6 +73,36 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
+
+## @param customLivenessProbe Override default liveness probe
+##
+customLivenessProbe: {}
+## @param customReadinessProbe Override default readiness probe
+##
+customReadinessProbe: {}
+
+## liveness and readiness
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
+healthCheck:
+  type: http  # http/tcp
+  port: http  # 上面的端口名或端口
+  httpPath: '/'  # http时必须设置
+  readinessProbe:
+    enabled: true
+    httpPath: '/'  # http时必须设置
+    initialDelaySeconds: 10   # 初始延迟秒数, k8s默认值为0，最小为0
+    periodSeconds: 30  # 检测周期，k8s默认值10，最小为1
+    timeoutSeconds: 5  # 检测超时，k8s默认值1，最小为1
+    successThreshold: 1  # 失败后成功次数，k8s默认值1，最小为1，只能设置为1
+    failureThreshold: 10  # 失败后重试次数，k8s默认值3，最小为1
+  livenessProbe:
+    enabled: true
+    httpPath: '/'  # http时必须设置
+    initialDelaySeconds: 10   # 初始延迟秒数, k8s默认值为0，最小为0
+    periodSeconds: 30  # 检测周期，k8s默认值10，最小为1
+    timeoutSeconds: 3  # 检测超时，k8s默认值1，最小为1
+    successThreshold: 1  # 失败后成功次数，k8s默认值1，最小为1，只能设置为1
+    failureThreshold: 10  # 失败后重试次数，k8s默认值3，最小为1
 
 service:
   type: ClusterIP
@@ -153,13 +221,7 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
+  targetMemoryUtilizationPercentage: 80
 
 # sentinel configmap setting.
 sentinel: 

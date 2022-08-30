@@ -1,39 +1,49 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "sentinel-dashboard.fullname" . }}
-  labels:
-    {{- include "sentinel-dashboard.labels" . | nindent 4 }}
+  name: {{ include "common.names.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
 spec:
   serviceName: {{ include "sentinel-dashboard.fullname" . }}
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
-    matchLabels:
-      {{- include "sentinel-dashboard.selectorLabels" . | nindent 6 }}
+    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
+      labels: {{- include "common.labels.standard" . | nindent 8 }}
+        {{- if .Values.podLabels }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.podLabels "context" $) | nindent 8 }}
+        {{- end }}
       annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      labels:
-        {{- include "sentinel-dashboard.selectorLabels" . | nindent 8 }}
+        {{- if .Values.podAnnotations }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
+{{- include "sentinel-dashboard.imagePullSecrets" . | indent 6 }}
+      {{- if .Values.affinity }}
+      affinity: {{- include "sentinel-dashboard.tplValue" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- include "sentinel-dashboard.tplValue" (dict "value" .Values.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- include "sentinel-dashboard.tplValue" (dict "value" .Values.tolerations "context" $) | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "sentinel-dashboard.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
+          image: {{ template "sentinel-dashboard.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 8858
@@ -48,24 +58,24 @@ spec:
               value: "-Dserver.servlet.session.timeout=7200 "
             - name: SERVER_HOST
               valueFrom:
-                configMapKeyRef:
-                  name: {{ include "sentinel-dashboard.fullname" . }}
+                secretKeyRef:
+                  name: {{ include "common.names.fullname" . }}
                   key: sentinel.server.host
             - name: SERVER_PORT
               valueFrom:
-                configMapKeyRef:
-                  name: {{ include "sentinel-dashboard.fullname" . }}
+                secretKeyRef:
+                  name: {{ include "common.names.fullname" . }}
                   key: sentinel.server.port
             - name: USERNAME
               valueFrom:
-                  configMapKeyRef:
-                    name: {{ include "sentinel-dashboard.fullname" . }}
-                    key: sentinel.dashboard.auth.username
+                secretKeyRef:
+                  name: {{ include "common.names.fullname" . }}
+                  key: sentinel.dashboard.auth.username
             - name: PASSWORD
               valueFrom:
-                  configMapKeyRef:
-                    name: {{ include "sentinel-dashboard.fullname" . }}
-                    key: sentinel.dashboard.auth.password
+                secretKeyRef:
+                  name: {{ include "common.names.fullname" . }}
+                  key: sentinel.dashboard.auth.password
           livenessProbe:
             httpGet:
               path: /
@@ -74,17 +84,32 @@ spec:
             httpGet:
               path: /
               port: http
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+          {{- if .Values.healthCheck.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.healthCheck.livenessProbe.httpPath }}
+              port: {{ .Values.healthCheck.port }}
+            initialDelaySeconds: {{ .Values.healthCheck.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.healthCheck.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.healthCheck.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.healthCheck.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.healthCheck.livenessProbe.failureThreshold }}
+          {{- else if .Values.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.healthCheck.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.healthCheck.readinessProbe.httpPath }}
+              port: {{ .Values.healthCheck.port }}
+            initialDelaySeconds: {{ .Values.healthCheck.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.healthCheck.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.healthCheck.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.healthCheck.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.healthCheck.readinessProbe.failureThreshold }}
+          {{- else if .Values.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.customReadinessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.resources }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}

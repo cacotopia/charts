@@ -66,7 +66,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
 {{/*
-Return the proper WordPress image name
+Return the proper seata-server image name
 */}}
 {{- define "seata-server.image" -}}
 {{- $registryName := .Values.image.registry -}}
