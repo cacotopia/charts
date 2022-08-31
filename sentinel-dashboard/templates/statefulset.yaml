@@ -76,14 +76,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "common.names.fullname" . }}
                   key: sentinel.dashboard.auth.password
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
           {{- if .Values.healthCheck.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
