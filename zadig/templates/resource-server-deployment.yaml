@@ -14,10 +14,6 @@ spec:
       labels:
         {{- include "zadig.microservice.resourceServer.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       containers:
         - image: {{ .Values.microservice.resourceServer.image.repository }}:{{ .Values.microservice.resourceServer.image.tag | default .Chart.AppVersion }}
           imagePullPolicy: {{ .Values.microservice.resourceServer.image.pullPolicy | default "Always" }}

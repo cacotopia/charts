@@ -18,10 +18,6 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/aslan-configmap.yaml") . | sha256sum }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       serviceAccountName: {{ include "zadig.serviceAccountName" .}}
       containers:
         - name: nsqd
@@ -110,6 +106,9 @@ spec:
             - mountPath: /etc/encryption
               name: aes-key
               readOnly: true
+            - mountPath: /config
+              name: policy-config
+              readOnly: true
       volumes:
         - name: data
           emptyDir: {}
@@ -119,4 +118,7 @@ spec:
             items:
               - key: aesKey
                 path: aes
+        - name: policy-config
+          configMap:
+            name: policy-config
 

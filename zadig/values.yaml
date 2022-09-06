@@ -12,6 +12,8 @@ tags:
   ingressController: false
   # mysql is the switch for installing mysql for zadig, if an external database is provided, set this to false
   mysql: false
+  gloo: false
+  dex: false
 endpoint:
   # endpoint.type is the type of Zadig system endpoint. It can be of type FQDN or IP. By default the type is FQDN.
   type: FQDN
@@ -19,7 +21,6 @@ endpoint:
   FQDN: poc.example.com
   # IP is the ip of one of the cluster's worker node. It must be set if the endpoint is of type IP. By default it is empty.
   IP:
-
 global:
   encryption:
     key: 9F11B4E503C7F2B577E5F9366BDDAB64
@@ -40,7 +41,7 @@ microservice:
   aslan:
     image:
       repository: koderover.tencentcloudcr.com/koderover-public/aslan
-      tag: 1.13.0-amd64
+      tag: 1.14.0-amd64
       pullPolicy: Always
     serviceStartTimeout: 600
     resources:
@@ -52,7 +53,7 @@ microservice:
   cron:
     image:
       repository: koderover.tencentcloudcr.com/koderover-public/cron
-      tag: 1.13.0-amd64
+      tag: 1.14.0-amd64
       pullPolicy: Always
   dind:
     image:
@@ -65,72 +66,41 @@ microservice:
   hubAgent:
     image:
       repository: koderover.tencentcloudcr.com/koderover-public/hub-agent
-      tag: 1.13.0-amd64
+      tag: 1.14.0-amd64
   hubServer:
     image:
       repository: koderover.tencentcloudcr.com/koderover-public/hub-server
-      tag: 1.13.0-amd64
+      tag: 1.14.0-amd64
       pullPolicy: Always
   jenkins:
     image:
       repository: koderover.tencentcloudcr.com/koderover-public/jenkins-plugin
-      tag: 1.13.0-amd64
+      tag: 1.14.0-amd64
   kodespace:
     version: v1.1.0
-  podexec:
-    image:
-      repository: koderover.tencentcloudcr.com/koderover-public/podexec
-      tag: 1.13.0-amd64
-      pullPolicy: Always
   predator:
     image:
       repository: koderover.tencentcloudcr.com/koderover-public/predator-plugin
-      tag: 1.13.0-amd64
+      tag: 1.14.0-amd64
   resourceServer:
     image:
       repository: koderover.tencentcloudcr.com/koderover-public/resource-server
-      tag: 1.13.0-amd64
+      tag: 1.14.0-amd64
       pullPolicy: Always
   packager:
     image:
       repository: koderover.tencentcloudcr.com/koderover-public/packager-plugin
-      tag: 1.13.0-amd64
+      tag: 1.14.0-amd64
   warpdrive:
     replicas: 2
     image:
       repository: koderover.tencentcloudcr.com/koderover-public/warpdrive
-      tag: 1.13.0-amd64
+      tag: 1.14.0-amd64
       pullPolicy: Always
     resources:
       limits:
         cpu: 1
         memory: 2Gi
-  user:
-    image:
-      repository: koderover.tencentcloudcr.com/koderover-public/user
-      tag: 1.13.0-amd64
-      pullPolicy: Always
-    resources: {}
-    database: user
-  picket:
-    image:
-      repository: koderover.tencentcloudcr.com/koderover-public/picket
-      tag: 1.13.0-amd64
-      pullPolicy: Always
-    resources: {}
-  policy:
-    image:
-      repository: koderover.tencentcloudcr.com/koderover-public/policy
-      tag: 1.13.0-amd64
-      pullPolicy: Always
-    resources: {}
-  config:
-    image:
-      repository: koderover.tencentcloudcr.com/koderover-public/config
-      tag: 1.13.0-amd64
-      pullPolicy: Always
-    resources: {}
-    dexDatabase: dex
   opa:
     image:
       repository: koderover.tencentcloudcr.com/koderover-public/opa
@@ -142,7 +112,7 @@ microservice:
 init:
   image:
     repository: koderover.tencentcloudcr.com/koderover-public/init
-    tag: 1.13.0-amd64
+    tag: 1.14.0-amd64
     pullPolicy: Always
   adminPassword: zadig
   adminEmail: admin@example.com
@@ -158,7 +128,7 @@ nsqd:
 frontend:
   image:
     repository: koderover.tencentcloudcr.com/koderover-public/zadig-portal
-    tag: 1.13.0-amd64
+    tag: 1.14.0-amd64
     pullPolicy: Always
   resources:
     limits:
@@ -167,7 +137,7 @@ frontend:
 ua:
   image:
     repository: koderover.tencentcloudcr.com/koderover-public/ua
-    tag: 1.13.0-amd64
+    tag: 1.14.0-amd64
     pullPolicy: Always
 connections:
   mysql:
@@ -175,11 +145,12 @@ connections:
     auth:
       user: root
       password: zadig
+    db:
+      user: user
+      dex: dex
   mongodb:
     connectionString: mongodb://zadig-mongodb:27017
     db: zadig
-imagePullSecrets:
-  - name: qn-registry-secret
 github:
   knownHost:
   sshKey:
@@ -187,8 +158,6 @@ kubernetes:
   server:
 ingress-nginx:
   fullnameOverride: zadig-ingress-nginx
-  imagePullSecrets:
-    - name: qn-registry-secret
   controller:
     admissionWebhooks:
       # admission webhooks must be set to false if the cluster version is under 1.16
@@ -256,7 +225,7 @@ dex:
   fullnameOverride: zadig-dex
   image:
     repository: koderover.tencentcloudcr.com/koderover-public/dex
-    tag: 1.13.0-amd64
+    tag: 1.14.0-amd64
     pullPolicy: Always
   config:
     issuer: http://zadig-dex:5556/dex

@@ -7,9 +7,6 @@ metadata:
 data:
   ADDRESS: {{ default "http" .Values.protocol }}://{{- include "zadig.endpoint" . }}
   NSQLOOKUP_ADDRS: "nsqlookupd:4161"
-  DEFAULT_REG_ADDRESS: "https://ccr.ccs.tencentyun.com"
-  DEFAULT_REG_ACCESS_KEY: "100008469911"
-  DEFAULT_REG_SECRET_KEY: "nCmfTA+YjhF2*C5J"
   POETRY_API_ROOT_KEY: {{ include "zadig.rootToken" . }}
   DISABLE_KUBE_INFORMER: "true"
   {{- if .Values.microservice.warpdrive.releaseImageTimeout }}

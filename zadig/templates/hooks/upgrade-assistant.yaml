@@ -14,10 +14,6 @@ spec:
       labels:
         {{- include "zadig.postHook.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       restartPolicy: Never
       containers:
         - name: post-upgrade-job
@@ -61,4 +57,4 @@ spec:
             - name: MYSQL_HOST
               value: {{ .Values.connections.mysql.host }}
             - name: MYSQL_USER_DB
-              value: {{ .Values.microservice.user.database }}
+              value: {{ .Values.connections.mysql.db.user }}

@@ -61,15 +61,6 @@ sa-{{ .Release.Name }}
 
 {{/*
 =====================================================
-=            IMAGE PULL SECRETS SETTINGS            =
-=====================================================
-*/}}
-{{- define "zadig.pullSecretName" -}}
-qn-registry-secret
-{{- end }}
-
-{{/*
-=====================================================
 =              ZADIG ENDPOINT SETTINGS              =
 =====================================================
 */}}
@@ -180,100 +171,7 @@ app.kubernetes.io/component: hub-server
 {{ include "zadig.selectorLabels" . }}
 {{- end }}
 
-{{/*
-=====================================================
-=          PODEXEC MICROSERVICE SETTINGS            =
-=====================================================
-*/}}
-{{- define "zadig.microservice.podexec.port" -}}
-27000
-{{- end }}
 
-{{- define "zadig.microservice.podexec.labels" -}}
-app.kubernetes.io/component: podexec
-{{ include "zadig.labels" . }}
-{{- end }}
-
-{{- define "zadig.microservice.podexec.selectorLabels" -}}
-app.kubernetes.io/component: podexec
-{{ include "zadig.selectorLabels" . }}
-{{- end }}
-
-{{/*
-=====================================================
-=          USER MICROSERVICE SETTINGS          =
-=====================================================
-*/}}
-{{- define "zadig.microservice.user.port" -}}
-80
-{{- end }}
-
-{{- define "zadig.microservice.user.labels" -}}
-app.kubernetes.io/component: user
-{{ include "zadig.labels" . }}
-{{- end }}
-
-{{- define "zadig.microservice.user.selectorLabels" -}}
-app.kubernetes.io/component: user
-{{ include "zadig.selectorLabels" . }}
-{{- end }}
-
-{{/*
-=====================================================
-=          PICKET MICROSERVICE SETTINGS          =
-=====================================================
-*/}}
-{{- define "zadig.microservice.picket.port" -}}
-80
-{{- end }}
-
-{{- define "zadig.microservice.picket.labels" -}}
-app.kubernetes.io/component: picket
-{{ include "zadig.labels" . }}
-{{- end }}
-
-{{- define "zadig.microservice.picket.selectorLabels" -}}
-app.kubernetes.io/component: picket
-{{ include "zadig.selectorLabels" . }}
-{{- end }}
-
-{{/*
-=====================================================
-=          POLICY MICROSERVICE SETTINGS          =
-=====================================================
-*/}}
-{{- define "zadig.microservice.policy.port" -}}
-80
-{{- end }}
-
-{{- define "zadig.microservice.policy.labels" -}}
-app.kubernetes.io/component: policy
-{{ include "zadig.labels" . }}
-{{- end }}
-
-{{- define "zadig.microservice.policy.selectorLabels" -}}
-app.kubernetes.io/component: policy
-{{ include "zadig.selectorLabels" . }}
-{{- end }}
-
-{{/*
-=====================================================
-=          CONFIG MICROSERVICE SETTINGS          =
-=====================================================
-*/}}
-{{- define "zadig.microservice.config.port" -}}
-80
-{{- end }}
-
-{{- define "zadig.microservice.config.labels" -}}
-app.kubernetes.io/component: config
-{{ include "zadig.labels" . }}
-{{- end }}
-
-{{- define "zadig.microservice.config.selectorLabels" -}}
-app.kubernetes.io/component: config
-{{ include "zadig.selectorLabels" . }}
-{{- end }}
 
 {{/*
 =====================================================

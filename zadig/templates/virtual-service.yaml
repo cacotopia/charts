@@ -19,21 +19,6 @@ spec:
         options:
           timeout: 30s
       - matchers:
-          - prefix: /api/v1/callback
-          - prefix: /api/v1/users
-          - prefix: /api/v1/user/count
-          - prefix: /api/v1/login
-          - prefix: /api/v1/signup
-          - prefix: /api/v1/retrieve
-          - prefix: /api/v1/reset
-        routeAction:
-          single:
-            kube:
-              ref:
-                name: user
-                namespace: {{ .Release.Namespace }}
-              port: 80
-      - matchers:
           - prefix: /api/v1/policy/permission
         options:
           autoHostRewrite: true
@@ -41,54 +26,12 @@ spec:
         routeAction:
           single:
             kube:
-              port: 80
+              port: 25000
               ref:
-                name: policy
+                name: aslan
                 namespace: {{ .Release.Namespace }}
       - matchers:
-          - prefix: /api/v1/picket
-        routeAction:
-          single:
-            kube:
-              ref:
-                name: picket
-                namespace: {{ .Release.Namespace }}
-              port: 80
-        options:
-          prefixRewrite: /api/v1
-      - matchers:
-          - prefix: /api/v1/roles
-          - prefix: /api/v1/preset-roles
-          - prefix: /api/v1/system-roles
-          - prefix: /api/v1/rolebindings
-          - prefix: /api/v1/userbindings
-          - prefix: /api/v1/system-rolebindings
-          - prefix: /api/v1/policy-definitions
-          - prefix: /api/v1/policies
-        routeAction:
-          single:
-            kube:
-              ref:
-                name: policy
-                namespace: {{ .Release.Namespace }}
-              port: 80
-      - matchers:
-          - prefix: /api/v1/connectors
-          - prefix: /api/v1/emails
-          - prefix: /api/v1/jira
-          - prefix: /api/v1/codehosts
-          - prefix: /public-api/v1
-          - prefix: /api/v1/features
-        routeAction:
-          single:
-            kube:
-              ref:
-                name: config
-                namespace: {{ .Release.Namespace }}
-              port: 80
-      - matchers:
-          - prefix: /api/hub
-          - prefix: /api/callback
+          - prefix: /api/directory/codehosts/callback
         routeAction:
           single:
             kube:
@@ -96,27 +39,18 @@ spec:
                 name: aslan
                 namespace: {{ .Release.Namespace }}
               port: 25000
-      - matchers:
-          - prefix: /api/directory/codehosts/callback
-        routeAction:
-          single:
-            kube:
-              ref:
-                name: config
-                namespace: {{ .Release.Namespace }}
-              port: 80
         options:
           prefixRewrite: /api/v1/codehosts/callback
-          timeout: 30s
+          timeout: 3600s
       - matchers:
           - prefix: /api/directory
         routeAction:
           single:
             kube:
               ref:
-                name: picket
+                name: aslan
                 namespace: {{ .Release.Namespace }}
-              port: 80
+              port: 25000
         options:
           prefixRewrite: /public-api/v1
       - matchers:
@@ -134,15 +68,37 @@ spec:
           prefixRewrite: /api
       - matchers:
           - prefix: /api/podexec
+          - prefix: /api/hub
+          - prefix: /api/callback
+          - prefix: /api/v1/connectors
+          - prefix: /api/v1/emails
+          - prefix: /api/v1/jira
+          - prefix: /api/v1/codehosts
+          - prefix: /api/v1/features
+          - prefix: /api/v1/roles
+          - prefix: /api/v1/preset-roles
+          - prefix: /api/v1/system-roles
+          - prefix: /api/v1/rolebindings
+          - prefix: /api/v1/userbindings
+          - prefix: /api/v1/system-rolebindings
+          - prefix: /api/v1/policy-definitions
+          - prefix: /api/v1/policies
+          - prefix: /api/v1/picket
+          - prefix: /api/v1/callback
+          - prefix: /api/v1/users
+          - prefix: /api/v1/user/count
+          - prefix: /api/v1/login
+          - prefix: /api/v1/signup
+          - prefix: /api/v1/retrieve
+          - prefix: /api/v1/reset
+          - prefix: /openapi
         routeAction:
           single:
             kube:
               ref:
-                name: podexec
+                name: aslan
                 namespace: {{ .Release.Namespace }}
-              port: 27000
-        options:
-          prefixRewrite: /api
+              port: 25000
       - matchers:
           - prefix: /
         routeAction:

@@ -9,7 +9,6 @@ accessLogger:
   serviceName: AccessLog
   stats:
     enabled: true
-
 discovery:
   deployment:
     enablePodSecurityContext: true
@@ -23,7 +22,6 @@ discovery:
   enabled: true
   fdsMode: WHITELIST
   serviceAccount: {}
-
 gateway:
   GatewayService: null
   certGenJob:
@@ -97,7 +95,6 @@ gatewayProxies:
       httpPort: 80
       httpsPort: 443
       type: LoadBalancer
-
 global:
   extauthCustomYaml: true
   glooMtls:
@@ -137,7 +134,6 @@ gloo:
     validationPort: 9988
     xdsPort: 9977
   serviceAccount: {}
-
 ingress:
   deployment:
     image:
@@ -146,7 +142,6 @@ ingress:
     replicas: 1
     runAsUser: 10101
   enabled: false
-
 ingressProxy:
   configMap: {}
   deployment:
@@ -162,10 +157,8 @@ ingressProxy:
     httpPort: 80
     httpsPort: 443
     type: LoadBalancer
-
 k8s:
   clusterName: cluster.local
-
 namespace:
   create: false
 settings:

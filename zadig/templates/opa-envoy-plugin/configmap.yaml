@@ -8,7 +8,7 @@ data:
   config.yaml: |
     services:
       bundle_server:
-        url: http://policy/api/v1
+        url: http://aslan:25000/api/v1
         response_header_timeout_seconds: 5
 
     bundles:

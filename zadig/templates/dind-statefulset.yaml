@@ -21,10 +21,6 @@ spec:
             - weight: 100
               podAffinityTerm:
                 topologyKey: kubernetes.io/hostname
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       containers:
         - name: dind
           image: {{ .Values.microservice.dind.image.repository }}:{{ .Values.microservice.dind.image.tag }}
