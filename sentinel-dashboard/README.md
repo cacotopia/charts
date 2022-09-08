@@ -1,18 +1,27 @@
-# sentinel-dashboard-for-k8s
+# sentinel-dashboard
+
 alibaba sentinel dashboard for k8s.
 
-# 端口
-Web Port: 8858
+## Install
 
-Api Server Port: 8719
+Install with Helm 3:
 
-# 默认用户名和密码
-sentinel/sentinel
+```bash
+helm repo add cacotopia https://cacotopia.github.io/charts/
 
-# Helm deploy
-```shell
-helm repo add sentinel-dashboard https://royalwang.github.io/sentinel-dashboard-for-k8s/
-
-helm install msentinel-dashboard sentinel-dashboard/sentinel-dashboard
-
+helm install msentinel-dashboard cacotopia/sentinel-dashboard
 ```
+
+## Uninstall
+
+```bash
+$ helm delete kruise
+release "kruise" uninstalled
+```
+
+## Configuration
+
+The following table lists the configurable parameters of the kruise chart and their default values.
+
+| Parameter                                 | Description                                                  | Default                       |
+| ----------------------------------------- | ------------------------------------------------------------ | ----------------------------- |

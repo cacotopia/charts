@@ -156,6 +156,7 @@ github:
   sshKey:
 kubernetes:
   server:
+
 ingress-nginx:
   fullnameOverride: zadig-ingress-nginx
   controller:
@@ -173,6 +174,7 @@ ingress-nginx:
         # ingress-nginx.controller.service.nodePorts.http is the http port of the ingress-nginx controller service
         # if ingress-nginx.controller.service.type is set to Loadbalancer, this field should not be set.
         http: 31147
+
 minio:
   # endpoint is the endpoint for the minio, if the user choose to provide their own minio
   endpoint: zadig-minio:9000
@@ -195,6 +197,7 @@ minio:
     registry: koderover.tencentcloudcr.com
     repository: koderover-public/minio
     tag: 2021.6.14-debian-10-r0
+
 mongodb:
   persistence:
     enabled: true
@@ -208,6 +211,7 @@ mongodb:
     registry: koderover.tencentcloudcr.com
     repository: koderover-public/mongodb
     tag: 4.4.6-debian-10-r8
+
 mysql:
   auth:
     database: dex
@@ -221,6 +225,7 @@ mysql:
     registry: koderover.tencentcloudcr.com
     repository: koderover-public/mysql
     tag: 8.0.27-debian-10-r8
+
 dex:
   fullnameOverride: zadig-dex
   image:
@@ -250,6 +255,7 @@ dex:
         name: 'zadig'
         secret: ZXhhbXBsZS1hcHAtc2VjcmV0
     enablePasswordDB: true
+
 gloo:
   settings:
     singleNamespace: true
