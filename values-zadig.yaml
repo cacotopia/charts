@@ -12,6 +12,8 @@ tags:
   ingressController: false
   # mysql is the switch for installing mysql for zadig, if an external database is provided, set this to false
   mysql: false
+  dex: false
+  gloo: false
 
 global:
   extensions:
