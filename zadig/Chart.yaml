@@ -3,7 +3,7 @@ appVersion: 1.14.0
 description: A Helm chart for Zadig
 name: zadig
 type: application
-version: 1.14.0
+version: 1.14.1
 dependencies:
 - condition: tags.mongodb
   name: mongodb
