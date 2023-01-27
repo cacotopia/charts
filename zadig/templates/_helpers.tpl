@@ -273,3 +273,49 @@ app.kubernetes.io/component: init
 app.kubernetes.io/component: init
 {{ include "zadig.selectorLabels" . }}
 {{- end }}
+
+{{/*
+=====================================================
+=                  MYSQL SETTINGS                   =
+=====================================================
+*/}}
+{{- define "zadig.mysql.name" -}}
+{{- if .Values.mysql.fullnameOverride -}}
+{{- .Values.mysql.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+zadig-mysql
+{{- end -}}
+{{- end -}}
+
+{{- define "zadig.mysql.labels" -}}
+app.kubernetes.io/component: mysql
+{{ include "zadig.labels" . }}
+{{- end }}
+
+{{- define "zadig.mysql.selectorLabels" -}}
+app.kubernetes.io/component: mysql
+{{ include "zadig.selectorLabels" . }}
+{{- end }}
+
+{{/*
+=====================================================
+=                MONGODB SETTINGS                   =
+=====================================================
+*/}}
+{{- define "zadig.mongodb.name" -}}
+{{- if .Values.mongodb.fullnameOverride -}}
+{{- .Values.mongodb.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+zadig-mongodb
+{{- end -}}
+{{- end -}}
+
+{{- define "zadig.mongodb.labels" -}}
+app.kubernetes.io/component: mongodb
+{{ include "zadig.labels" . }}
+{{- end }}
+
+{{- define "zadig.mongodb.selectorLabels" -}}
+app.kubernetes.io/component: mongodb
+{{ include "zadig.selectorLabels" . }}
+{{- end }}

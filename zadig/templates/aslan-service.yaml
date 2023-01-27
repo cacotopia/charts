@@ -2,12 +2,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: aslan
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "zadig.microservice.aslan.labels" . | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
     - protocol: TCP
+      name: aslan
       port: {{ template "zadig.microservice.aslan.port" . }}
       targetPort: {{ template "zadig.microservice.aslan.port" . }}
   selector:

@@ -31,12 +31,6 @@ dex:
   fullnameOverride: zadig-dex
   config:
     issuer: http://zadig-dex:5556/dex
-    staticClients: 
-     - id: zadig
-       name: 'zadig'
-       secret: ZXhhbXBsZS1hcHAtc2VjcmV0
-       redirectURIs:
-        - 'http://cicd.sendpulsar.com/api/v1/callback'
     storage: 
       type: mysql
       config: 
@@ -46,6 +40,12 @@ dex:
         password: yhl1qaz2wsx
         ssl:
           mode: "false"
+    staticClients: 
+     - id: zadig
+       name: 'zadig'
+       secret: ZXhhbXBsZS1hcHAtc2VjcmV0
+       redirectURIs:
+        - 'http://cicd.sendpulsar.com/api/v1/callback'
 
 connections:
   mysql:
@@ -54,20 +54,19 @@ connections:
       user: root
       password: yhl1qaz2wsx 
   mongodb:
-    connectionString: mongodb://zadig:yhl1qaz2wsx@mongodb.mongodb:27017/zadig
-    db: zadig
+    connectionString: mongodb://root:yhl1qaz2wsx@mongodb.mongodb:27017
+    db: pulsar
 
 minio:
   # endpoint is the endpoint for the minio, if the user choose to provide their own minio
-  endpoint: zadig-minio:9000
+  endpoint: minio.minio:9000
   bucket: zadig
-  persistence: 
-    pv: true
-    storageClass: "ceph-block"
-  accessKey:
-    password: AKIAIOSFODNN72019EXAMPLE
-  secretKey:
-    password: wJalrXUtnFEMI2019K7MDENGbPxRfiCYEXAMPLEKEY
+  # DO NOT DELETE THE FIRST USER OTHERWISE THE SYSTEM WILL BE BROKEN
+  users:
+    - accessKey: AKIAIOSFODNN72019EXAMPLE
+      secretKey: wJalrXUtnFEMI2019K7MDENGbPxRfiCYEXAMPLEKEY
+      policy: readwrite
+  protocol: http
 
 mysql:
   auth:
@@ -82,3 +81,10 @@ ingress-nginx:
   controller: 
     ingressClass: nginx
 
+ee:
+  autoSyncClient: true
+  #  host: poc-ee.example.com
+  mongo:
+    db: "prada"
+    port: "27017"
+    connectionString: mongodb://root:yhl1qaz2wsx@mongodb.mongodb:27017

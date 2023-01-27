@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: warpdrive
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "zadig.microservice.warpdrive.labels" . | nindent 4 }}
 spec:

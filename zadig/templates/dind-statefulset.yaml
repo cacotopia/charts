@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: dind
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "zadig.microservice.dind.labels" . | nindent 4 }}
 spec:

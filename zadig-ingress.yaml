@@ -1,0 +1,200 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: zadig
+  namespace: zadig-system
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: zadig.sendpulsar.com
+    http:
+      paths:
+      - path: /plutus-vendor
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: vendor-portal
+            port:
+              number: 80
+      - path: /api/podexec
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/hub
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/callback
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/connectors
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/emails
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/jira
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/codehosts
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/features
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/roles
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/preset-roles
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/system-roles
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/rolebindings
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/userbindings
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/system-rolebindings
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/policy-definitions
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/policies
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/picket
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/callback
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/users
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/user/count
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/login
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/signup
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/retrieve
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /api/v1/reset
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /openapi
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: aslan
+            port:
+              number: 25000
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: zadig-portal
+            port:
+              number: 80
